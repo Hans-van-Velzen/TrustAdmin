@@ -1,0 +1,24 @@
+{
+    "name": "pgdb",
+    "version": "1.0.0",
+    "description": "postgres database interface",
+    "type": "module",
+    "license": "private",
+    "private": true,
+    "main": "index.js",
+    "scripts": {
+        "mocha": "./node_modules/mocha/bin/mocha.js",
+        "test": "mocha"
+    },
+    "dependencies": {
+        "dotenv": "^16.4.5",
+        "solid-js": "^1.8.22"
+    },
+    "engines": {
+        "node": ">=18"
+    },
+    "devDependencies": {
+        "chai": "^5.1.1",
+        "mocha": "^10.7.3"
+    }
+}
