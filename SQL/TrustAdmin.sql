@@ -135,29 +135,36 @@ CREATE TRIGGER audit_log_trigger
 
 -- insert or delete or update on
 --     trust."Beneficiaries" for each row execute function trust_audit.audit_trigger('{"id_value": "Beneficiaries_ID"}');
-
-create table TrustDocs
-( TrustDocID bigserial primary key
-, DocName varchar(128)
-, SentReceived char(8)
-, DocDate date   -- The date a document was received or sent
-, DocLink varchar(256) -- a link to the actual document
-, DocFromOrg varchar(128)
-, DocFromName varchar(128)
-, DocToOrg varchar(128)
-, DocToName varchar(128)
-, DocTrackTrace varchar(32) -- holds a track and tracecode
-, DocDateReceivedAtAddressee date -- for sent documents, when was it received
+-- drop table "Documents";
+create table "Documents"(
+    "ID" bigserial primary key,
+    "DocName" varchar(128),
+    "DocMedia" varchar(20),
+    "DocDate" date,              -- the date of the document
+    "SentReceived" char(8),
+    "DocReceivedDate" date,      -- The date a document was received or sent
+    "DocLink" varchar(256),      -- a link to the actual document
+    "DocFromOrg" varchar(128),
+    "DocFromName" varchar(128),
+    "DocToOrg" varchar(128),
+    "DocToName" varchar(512),    -- these can be many
+    "DocTrackTrace" varchar(32), -- holds a track and tracecode
+    "DocDateReceivedAtAddressee" date, -- for sent documents, when was it received
+    "Audit_CreatedBy" int8 NULL,
+	"Audit_CreatedAt" timestamptz DEFAULT now() NOT null,
+	CONSTRAINT "Chk_DocSentReceived" CHECK (("SentReceived" = ANY (ARRAY['Sent'::bpchar, 'Received'::bpchar, 'SENT'::bpchar, 'RECEIVED'::bpchar]))),
+	CONSTRAINT "Chk_DocMedia" CHECK (("DocMedia" = ANY (ARRAY['Post'::bpchar, 'Email'::bpchar, 'Online'::bpchar, 'Text'::bpchar])))
 );
+-- foreign keys
+ALTER TABLE Trust."Documents" ADD CONSTRAINT documents_auditcreatedby_fkey FOREIGN KEY ("Audit_CreatedBy") REFERENCES trust."Members"("ID");
 
-create trigger audit_log_trigger before
-insert
-    or
-delete
-    or
-update
-    on
-    trust.TrustDocs for each row execute function trust_audit.audit_trigger('{"id_value": "TrustDocID"}');
+-- table triggers
+CREATE TRIGGER audit_log_trigger
+    BEFORE INSERT OR UPDATE OR DELETE 
+ ON trust."Documents"
+    FOR EACH ROW
+    EXECUTE FUNCTION trust_audit.audit_trigger();
+
 
 -- Drop table
 -- DO NOT USE
