@@ -59,7 +59,7 @@ CREATE TRIGGER audit_log_trigger
 
 -- Drop table
 
--- DROP TABLE trust."Parties";
+-- DROP TABLE trust."Parties" cascade;
 
 CREATE TABLE trust."Parties" (
 	"ID" bigserial NOT NULL,
@@ -86,7 +86,7 @@ CREATE TRIGGER audit_log_trigger
     EXECUTE FUNCTION trust_audit.audit_trigger();
 
 
--- drop table "Trustees";
+-- drop table "Trustees" cascade;
 create table "Trustees"(
     "ID" bigserial primary key,
     "Trust_ID" bigint,
@@ -135,24 +135,20 @@ CREATE TRIGGER audit_log_trigger
 
 -- insert or delete or update on
 --     trust."Beneficiaries" for each row execute function trust_audit.audit_trigger('{"id_value": "Beneficiaries_ID"}');
+
 -- drop table "Documents";
+-- TODO - split into documents, subclass correspondence, correspondence can have multiple adressees
+-- Document
+-- Correspondence
+--  - addressees; each with their TnT code
 create table "Documents"(
     "ID" bigserial primary key,
     "DocName" varchar(128),
     "DocMedia" varchar(20),
     "DocDate" date,              -- the date of the document
-    "SentReceived" char(8),
-    "DocReceivedDate" date,      -- The date a document was received or sent
     "DocLink" varchar(256),      -- a link to the actual document
-    "DocFromOrg" varchar(128),
-    "DocFromName" varchar(128),
-    "DocToOrg" varchar(128),
-    "DocToName" varchar(512),    -- these can be many
-    "DocTrackTrace" varchar(32), -- holds a track and tracecode
-    "DocDateReceivedAtAddressee" date, -- for sent documents, when was it received
     "Audit_CreatedBy" int8 NULL,
 	"Audit_CreatedAt" timestamptz DEFAULT now() NOT null,
-	CONSTRAINT "Chk_DocSentReceived" CHECK (("SentReceived" = ANY (ARRAY['Sent'::bpchar, 'Received'::bpchar, 'SENT'::bpchar, 'RECEIVED'::bpchar]))),
 	CONSTRAINT "Chk_DocMedia" CHECK (("DocMedia" = ANY (ARRAY['Post'::bpchar, 'Email'::bpchar, 'Online'::bpchar, 'Text'::bpchar])))
 );
 -- foreign keys
@@ -165,6 +161,72 @@ CREATE TRIGGER audit_log_trigger
     FOR EACH ROW
     EXECUTE FUNCTION trust_audit.audit_trigger();
 
+create table "Correspondence" (
+    "ID" bigserial primary key,
+    "Doc_ID" int8 NOT NULL,
+    "SentReceived" char(8),
+    "DocReceivedDate" date,      -- The date a document was received or sent
+    "DocFromOrg" varchar(128),
+    "DocFromName" varchar(128),
+    "Audit_CreatedBy" int8 NULL,
+	"Audit_CreatedAt" timestamptz DEFAULT now() NOT null,
+	CONSTRAINT "Chk_CorrSentReceived" CHECK (("SentReceived" = ANY (ARRAY['Sent'::bpchar, 'Received'::bpchar, 'SENT'::bpchar, 'RECEIVED'::bpchar])))
+);
+
+-- foreign keys
+ALTER TABLE Trust."Correspondence" ADD CONSTRAINT correspondence_auditcreatedby_fkey FOREIGN KEY ("Audit_CreatedBy") REFERENCES trust."Members"("ID");
+
+-- table triggers
+CREATE TRIGGER audit_log_trigger
+    BEFORE INSERT OR UPDATE OR DELETE 
+ ON trust."Correspondence"
+    FOR EACH ROW
+    EXECUTE FUNCTION trust_audit.audit_trigger();
+
+create table "Addressees" (
+    "ID" bigserial primary key,
+    "Doc_ID" int8 NOT NULL,
+    "Corr_ID" int8 NOT NULL,
+    "DocToOrg" varchar(128),
+    "DocToName" varchar(512),    
+    "DocTrackTrace" varchar(32), 
+    "DocDateReceivedAtAddressee" date, -- for sent documents, when was it received
+    "Audit_CreatedBy" int8 NULL,
+	"Audit_CreatedAt" timestamptz DEFAULT now() NOT null
+);
+
+-- foreign keys
+ALTER TABLE Trust."Addressees" ADD CONSTRAINT addressees_auditcreatedby_fkey FOREIGN KEY ("Audit_CreatedBy") REFERENCES trust."Members"("ID");
+ALTER TABLE Trust."Addressees" ADD CONSTRAINT addressees_documents_fkey FOREIGN KEY ("Doc_ID") REFERENCES trust."Documents"("ID");
+ALTER TABLE Trust."Addressees" ADD CONSTRAINT addressees_correspondence_fkey FOREIGN KEY ("Corr_ID") REFERENCES trust."Correspondence"("ID");
+
+-- table triggers
+CREATE TRIGGER audit_log_trigger
+    BEFORE INSERT OR UPDATE OR DELETE 
+ ON trust."Addressees"
+    FOR EACH ROW
+    EXECUTE FUNCTION trust_audit.audit_trigger();
+
+-- ==================================================================================
+create table "TrustDocuments" (
+    "ID" bigserial primary key,
+    "Trust_ID" bigint,
+    "Doc_ID" bigint,
+	"Audit_CreatedBy" int8 NULL,
+	"Audit_CreatedAt" timestamptz DEFAULT now() NOT null,
+    CONSTRAINT "TrustDocuments__uk" UNIQUE ("Trust_ID", "Doc_ID")
+);    
+-- foreign keys
+ALTER TABLE Trust."TrustDocuments" ADD CONSTRAINT TrustDocuments_auditcreatedby_fkey FOREIGN KEY ("Audit_CreatedBy") REFERENCES trust."Members"("ID");
+ALTER TABLE Trust."TrustDocuments" ADD CONSTRAINT TrustDocuments_documents_fkey FOREIGN KEY ("Doc_ID") REFERENCES trust."Documents"("ID");
+ALTER TABLE Trust."TrustDocuments" ADD CONSTRAINT TrustDocuments_trust_fkey FOREIGN KEY ("Trust_ID") REFERENCES trust."Trusts"("ID");
+
+-- table triggers
+CREATE TRIGGER audit_log_trigger
+    BEFORE INSERT OR UPDATE OR DELETE 
+ ON trust."TrustDocuments"
+    FOR EACH ROW
+    EXECUTE FUNCTION trust_audit.audit_trigger();
 
 -- Drop table
 -- DO NOT USE
