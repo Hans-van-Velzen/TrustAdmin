@@ -26,6 +26,8 @@ CREATE TRIGGER audit_log_trigger
     EXECUTE FUNCTION trust_audit.audit_trigger()
     ;
 
+GRANT SELECT, UPDATE, USAGE ON SEQUENCE trust."Members_ID_seq" TO trust;
+
 -- drop table Trusts; 
 -- trust."Trusts" definition
 
@@ -54,6 +56,9 @@ CREATE TRIGGER audit_log_trigger
  ON trust."Trusts"
     FOR EACH ROW
     EXECUTE FUNCTION trust_audit.audit_trigger();
+
+
+GRANT SELECT, UPDATE, USAGE ON SEQUENCE trust."Trusts_ID_seq" TO trust;
 
 -- trust."Parties" definition
 
@@ -86,6 +91,8 @@ CREATE TRIGGER audit_log_trigger
     EXECUTE FUNCTION trust_audit.audit_trigger();
 
 
+GRANT SELECT, UPDATE, USAGE ON SEQUENCE trust."Parties_ID_seq" TO trust;
+
 -- drop table "Trustees" cascade;
 create table "Trustees"(
     "ID" bigserial primary key,
@@ -108,6 +115,8 @@ CREATE TRIGGER audit_log_trigger
     FOR EACH ROW
     EXECUTE FUNCTION trust_audit.audit_trigger();
 
+
+GRANT SELECT, UPDATE, USAGE ON SEQUENCE trust."Trustees_ID_seq" TO trust;
 -- insert or delete or update on
 --     trust.Trustees for each row execute function trust_audit.audit_trigger('{"id_value": "Trustees_ID"}');
 
@@ -132,6 +141,9 @@ CREATE TRIGGER audit_log_trigger
  ON trust."Beneficiaries"
     FOR EACH ROW
     EXECUTE FUNCTION trust_audit.audit_trigger();
+
+
+GRANT SELECT, UPDATE, USAGE ON SEQUENCE trust."Beneficiaries_ID_seq" TO trust;
 
 -- insert or delete or update on
 --     trust."Beneficiaries" for each row execute function trust_audit.audit_trigger('{"id_value": "Beneficiaries_ID"}');
@@ -161,6 +173,9 @@ CREATE TRIGGER audit_log_trigger
     FOR EACH ROW
     EXECUTE FUNCTION trust_audit.audit_trigger();
 
+
+GRANT SELECT, UPDATE, USAGE ON SEQUENCE trust."Documents_ID_seq" TO trust;
+
 create table "Correspondence" (
     "ID" bigserial primary key,
     "Doc_ID" int8 NOT NULL,
@@ -182,6 +197,9 @@ CREATE TRIGGER audit_log_trigger
  ON trust."Correspondence"
     FOR EACH ROW
     EXECUTE FUNCTION trust_audit.audit_trigger();
+
+
+GRANT SELECT, UPDATE, USAGE ON SEQUENCE trust."Correspondence_ID_seq" TO trust;
 
 create table "Addressees" (
     "ID" bigserial primary key,
@@ -206,6 +224,9 @@ CREATE TRIGGER audit_log_trigger
  ON trust."Addressees"
     FOR EACH ROW
     EXECUTE FUNCTION trust_audit.audit_trigger();
+
+
+GRANT SELECT, UPDATE, USAGE ON SEQUENCE trust."Addressees_ID_seq" TO trust;    
 
 -- ==================================================================================
 create table "TrustDocuments" (

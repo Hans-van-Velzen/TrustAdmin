@@ -1,4 +1,6 @@
 
+import dotenv from 'dotenv';
+
 const pgenv = dotenv.config({ path: '../.env' });
 const TraceLevel = pgenv.parsed.TRACE_LEVEL;
 // Trace Level: 0 = FATAL; 1 = ERROR; 2 = WARNING; 3 = INFO

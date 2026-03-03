@@ -7,18 +7,17 @@
     "private": true,
     "main": "index.js",
     "scripts": {
-        "mocha": "./node_modules/mocha/bin/mocha.js",
-        "test": "mocha"
+        "test": "vitest"
     },
     "dependencies": {
         "dotenv": "^16.4.5",
+        "pg": "^8.11.3",
         "solid-js": "^1.8.22"
     },
     "engines": {
-        "node": ">=18"
+        "node": ">=20"
     },
     "devDependencies": {
-        "chai": "^5.1.1",
-        "mocha": "^10.7.3"
+        "vitest": "^4.0.18"
     }
 }
