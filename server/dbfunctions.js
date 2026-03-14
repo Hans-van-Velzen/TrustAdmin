@@ -84,7 +84,7 @@ return:
 export async function insert_a_member(params){
     // insert a member that can access the app
     // in a websocket situation maybe check against the list of Members
-    Trace('insert member: params:' + params, 2);
+    Trace(' params:' + params, 2, 'insert member ');
     // sanity checking on parameters
     // Member name must not be empty
     let errMsg = '';
@@ -100,11 +100,20 @@ export async function insert_a_member(params){
     strSQL = 'INSERT INTO trust."Members" ("Member_Name", "Member_Password", "Member_Email", "Member_Call", "Member_Active") ';
     strSQL = strSQL + 'VALUES($1, $2, $3, $4, $5) RETURNING "ID";'
 
-    const result = await query(strSQL, params);
+    let result;
+    let memberID;
+    try {
+        result = await query(strSQL, params);
+        console.log(result, 2, 'insert a member - result');
+        // Trace(result['rows'][0], 2, 'insert a member-1');
 
-    const memberID = result['rows'][0]['ID']
-    // console.log(result['fields']);
-    Trace('ID: ' + memberID);
+        memberID = result['rows'][0]['ID']
+        Trace('ID: ' + memberID, 2, 'insert a member');
+    } catch (error) {
+        Trace(error, 1, 'insert a member - error')
+        // if (error.code === 23505) {throw new error('duplicate key found')}
+        throw(error);
+    }
     return memberID;
 };
 
@@ -148,8 +157,9 @@ return:
 */
 export async function get_member_details_by_Name(params){
     // insert a member that can create a trust
-    Trace('insert member: ', 2);
-    Trace('params:' + params, 2);
+    Trace('start: ', 2, 'get member details by name');
+    Trace('start params:' + params, 2, 'get member details by name');
+    let errMsg;
     // sanity checking on parameters
     // ID must not be empty
     if (params.length < 1) {errMsg = '1 parameters expected (Member Name) - but received none ';};
@@ -157,7 +167,6 @@ export async function get_member_details_by_Name(params){
     if (params[0] === '') {errMsg = errMsg + 'Member Name is empty'};
     if (errMsg !== '') { throw(errMsg);}; // do NOT proceed if the parameters are not matching
 
-    let errMsg;
     let strSQL;
     strSQL = 'SELECT "ID", "Member_Name", "Member_Password", "Member_Call", "Member_Email", "Member_Active" FROM trust."Members" WHERE "Member_Name" = $1';
 
@@ -234,7 +243,7 @@ export async function reactivate_member(params) {
 
 /*
 insert_a_trust
-try to insert a new member into the database
+try to insert a new trust into the database
 expects:
     Trust name; 
     Trust startdate; -- YYYYMMDD
@@ -243,7 +252,7 @@ return:
     the Trust_ID of the newly added member-record
 */
 export async function insert_a_trust(params){
-    // insert a member that can create a trust
+    // insert a trust
     Trace('insert trust: ', 2);
     // sanity checking on parameters
     // Member name must not be empty

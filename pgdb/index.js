@@ -32,14 +32,19 @@ export const query  = async(text, params) => {
     const client = await pool.connect();
     try {
         result = await client.query(text, params);
+
     // console.log(result);
     } catch (error) {
         Trace(error, 1, 'pgdb.index - ERROR');
-        if (error.status === 23505) {this.rollback;} // duplicate key
-        return error;
+        if (error.status === 23505) {this.rollback; throw error} // duplicate key
+        throw error;
     }
     finally {
         client.release();
     }
     return result;
 };
+
+export const closeConnections = async() => {
+    await pool.close();
+}

@@ -3,8 +3,8 @@ import { expect } from 'vitest'
 import {clear_database, get_member_details_by_ID, deactivate_member, 
     getActiveMembers, getInactiveMembers, getTrusts, deactivate_trust } from "../server/dbfunctions.js";
 import { insert_a_trust, get_NumberOfTrusts, insert_a_member, getNumberOfMembers } from "../server/dbfunctions.js";
-// import { describe, it, before } from 'mocha';
-// import {strict as assert} from 'assert';
+import { Trace } from "../utils/Tracer.js";
+import { recreateDatabase } from "../server/db/create_full_schema.js";
 
 console.log('============= Start time : ', new Date(), ' =========================');
 
@@ -13,12 +13,12 @@ let NumberOfTrusts;
 let Member1_ID, Member2_ID;
 let Trust_ID;
 // values for a member to be added
-let MemberParams = [];
-MemberParams.push('Member Name 1');
-MemberParams.push('Member password 1');
-MemberParams.push('Member1@e.mail')
-MemberParams.push('Member calling 1');
-MemberParams.push('Y');
+let Member1Params = [];
+Member1Params.push('Member Name 1');
+Member1Params.push('Member password 1');
+Member1Params.push('Member1@e.mail')
+Member1Params.push('Member calling 1');
+Member1Params.push('Y');
 // const Member1 = {
 //     "Name": "Member Name 1",
 //     "Password": "Member password 1",
@@ -68,16 +68,38 @@ describe("Database test - Happy path", function () {
         });
     });
 
+    // describe("recreate the database from the Skeleton database", async function() {
+    //     it("should drop and recreate the database", async function () {
+    //         try {
+    //             await recreateDatabase() ;
+    //             NumberOfMembers = await getNumberOfMembers() ;
+    //         } catch (error) {
+    //             Trace(error, 1, 'recreate database');
+    //             throw (error);
+    //         };
+    //         expect(Number(NumberOfMembers)).toBe(0);
+    //         try {
+    //             NumberOfTrusts = await getNumberOfTrusts() ;
+    //         } catch (error) {
+    //             Trace(error, 1, 'recreate database');
+    //             throw (error);
+    //         };
+    //         expect(Number(NumberOfTrusts)).to.equal(0);   
+    //     })
+    // })
+
     describe("Go Happy", function () {
         
         it ("Should allow to add a member", async function () 
-        { //console.log(MemberParams);
+        { //console.log(Member1Params);
             try {
-                Member1_ID = await insert_a_member(MemberParams);
+                console.log(Member1Params)
+                Member1_ID = await insert_a_member(Member1Params);
+                console.log(Member1_ID);
             } catch (error) { 
                 assert(error);
             };
-            console.log(Member1_ID);
+            console.log('Member1 ID: ', Member1_ID);
             expect(Number(Member1_ID)).toBeGreaterThan(0);
             // return Member1_ID;
             return await getNumberOfMembers().then (async function(NumberOfMembers) {
@@ -88,7 +110,7 @@ describe("Database test - Happy path", function () {
                 expect(Member.length).toBe(1);
                 Member = Member[0];
                 console.log(Member);
-                expect(Member['Member_Name']).to.equal(MemberParams[0]);
+                expect(Member['Member_Name']).to.equal(Member1Params[0]);
                 expect(Member['Member_Active']).to.equal('Y');
                 return Member;
             })
@@ -160,7 +182,7 @@ describe("Database test - Happy path", function () {
             console.log('Inactive members: ', InactiveMembers);
             assert(ActiveMembers.length === 1, 'Active Members should be 1');
             const Member1 = ActiveMembers[0];
-            assert(Member1['Member_Name'] === MemberParams[0], 'Active Member name should be ' + MemberParams[0]);
+            assert(Member1['Member_Name'] === Member1Params[0], 'Active Member name should be ' + Member1Params[0]);
             assert(InactiveMembers.length === 1, 'Inactive Members should be 1');
             assert(InactiveMembers[0]['Member_Name'] === Member2Params[0], 'Inactive member name should be ' + Member2Params[0]);
 
