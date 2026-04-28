@@ -1,17 +1,23 @@
 import { describe, it, assert } from "vitest";
-import { expect } from 'vitest'
-import {clear_database, get_member_details_by_ID, deactivate_member, 
-    getActiveMembers, getInactiveMembers, getTrusts, deactivate_trust } from "../server/dbfunctions.js";
-import { insert_a_trust, get_NumberOfTrusts, insert_a_member, getNumberOfMembers } from "../server/dbfunctions.js";
+import { expect } from 'vitest';
+import { clear_database } from "./00 - clear test database.js";
+import { get_member_details_by_ID, deactivate_member, getNumberOfMembers,
+         getActiveMembers, getInactiveMembers, insert_a_member } from "../server/db_MemberFunctions.js";
+import { insert_a_trust, 
+         get_NumberOfTrusts, 
+         deactivate_trust, 
+         getTrusts,
+         insert_a_party 
+    } from "../server/db_TrustFunctions.js";
 import { Trace } from "../utils/Tracer.js";
-import { recreateDatabase } from "../server/db/create_full_schema.js";
+// import { recreateDatabase } from "../server/db/create_full_schema.js";
 
 console.log('============= Start time : ', new Date(), ' =========================');
 
 let NumberOfMembers; 
 let NumberOfTrusts;
 let Member1_ID, Member2_ID;
-let Trust_ID;
+let Trust1_ID;
 // values for a member to be added
 let Member1Params = [];
 Member1Params.push('Member Name 1');
@@ -44,12 +50,20 @@ Member2Params.push('Member2@e.mail')
 Member2Params.push('Member calling 2');
 Member2Params.push('Y');
 
+let Party1Params = [];
+Party1Params.push('Party Name 1');
+Party1Params.push('Y');
+Party1Params.push('19991105'); // bornday
+Party1Params.push('woman');
+Party1Params.push('Y'); // active
+
 let Member;
 let ActiveMembers;
 let InactiveMembers;
 let Trusts;
 
 describe("Database test - Happy path", function () {
+
     describe("Reset the database", function() {
         it("Should clear the database", async function () {            
             try {
@@ -67,26 +81,6 @@ describe("Database test - Happy path", function () {
             expect(Number(NumberOfTrusts)).to.equal(0);        
         });
     });
-
-    // describe("recreate the database from the Skeleton database", async function() {
-    //     it("should drop and recreate the database", async function () {
-    //         try {
-    //             await recreateDatabase() ;
-    //             NumberOfMembers = await getNumberOfMembers() ;
-    //         } catch (error) {
-    //             Trace(error, 1, 'recreate database');
-    //             throw (error);
-    //         };
-    //         expect(Number(NumberOfMembers)).toBe(0);
-    //         try {
-    //             NumberOfTrusts = await getNumberOfTrusts() ;
-    //         } catch (error) {
-    //             Trace(error, 1, 'recreate database');
-    //             throw (error);
-    //         };
-    //         expect(Number(NumberOfTrusts)).to.equal(0);   
-    //     })
-    // })
 
     describe("Go Happy", function () {
         
@@ -121,12 +115,12 @@ describe("Database test - Happy path", function () {
             TrustParams.push(Member1_ID);
             console.log(TrustParams);
             try {
-                Trust_ID = await insert_a_trust(TrustParams);
+                Trust1_ID = await insert_a_trust(TrustParams);
             } catch (error) {
                 assert(error);
             };
-            console.log('Trust_ID: ', Trust_ID);
-            expect(Number(Trust_ID)).to.greaterThan(0);
+            console.log('Trust1_ID: ', Trust1_ID);
+            expect(Number(Trust1_ID)).to.greaterThan(0);
         });
         it ("Should allow to add another member", async function () 
         { 
@@ -189,11 +183,11 @@ describe("Database test - Happy path", function () {
             return Member;
         });
         it ('Should allow to close a trust', async function() {
-            // Trust_ID is known
+            // Trust1_ID is known
             let params;
             let res;
             try {
-                params = [Trust_ID, Member1_ID];
+                params = [Trust1_ID, Member1_ID];
                 res = await deactivate_trust(params);
                 params = [Member1_ID];
 
@@ -202,7 +196,19 @@ describe("Database test - Happy path", function () {
                 assert (error);
             };
             console.log('Trusts: ' + Trusts);            
+        });
+        it ('Should allow to add a Party', async function () {
+            let params;
+            let res;
+            try {
+                params = Party1Params;
+                params.push(Member1_ID);
 
+                res = await insert_a_party(params);
+                expect(res).toBeTypeOf('bigint');
+            } catch (error) {
+                assert (error);
+            }
         })
     });
     // })

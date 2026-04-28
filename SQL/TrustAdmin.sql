@@ -40,6 +40,7 @@ CREATE TABLE trust."Trusts" (
 	"Trust_Name" varchar(64) NOT NULL,
 	"Trust_Startdate" date NULL,
 	"Trust_Active" bpchar(1) DEFAULT 'Y'::bpchar NOT NULL,
+    "Trust_Private" bpchar(1) DEFAULT 'Y'::bpchar NOT NULL,
 	"Audit_CreatedBy" int8 NULL,
 	"Audit_CreatedAt" timestamptz DEFAULT now() NOT NULL,
 	CONSTRAINT "Trusts__chk_Active" CHECK (("Trust_Active" = ANY (ARRAY['Y'::bpchar, 'N'::bpchar]))),
@@ -68,6 +69,7 @@ GRANT SELECT, UPDATE, USAGE ON SEQUENCE trust."Trusts_ID_seq" TO trust;
 
 CREATE TABLE trust."Parties" (
 	"ID" bigserial NOT NULL,
+    "Trust_ID" bigint NOT NULL,
 	"Party_Name" varchar(100) NOT NULL,
 	"Party_Natural" bpchar(1) DEFAULT 'Y'::bpchar NOT NULL,
 	"Party_BornDay" date NULL,
@@ -82,6 +84,7 @@ CREATE TABLE trust."Parties" (
 );
 -- foreign keys
 ALTER TABLE trust."Parties" ADD CONSTRAINT parties_auditcreatedby_fkey FOREIGN KEY ("Audit_CreatedBy") REFERENCES trust."Members"("ID");
+ALTER TABLE trust."Parties" ADD CONSTRAINT parties_relatedTo_fkey FOREIGN KEY ("Trust_ID") REFERENCES trust."Trusts"("ID");
 
 -- Table Triggers
 CREATE TRIGGER audit_log_trigger

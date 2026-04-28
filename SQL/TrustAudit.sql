@@ -24,6 +24,9 @@ set role trust;
 
 GRANT INSERT, SELECT ON TABLE trust_audit.logged_actions TO trust;
 
+
+GRANT SELECT, UPDATE, USAGE ON SEQUENCE trust_audit."logged_actions_event_id_seq" TO trust;
+
 GRANT ALL ON FUNCTION trust_audit.audit_trigger() TO trust;
 
 -- call this function from every table you want audited
@@ -98,12 +101,12 @@ RAISE NOTICE 'Value: %', id_value;
 
     IF TG_OP = 'INSERT' OR TG_OP = 'UPDATE' THEN
 		INSERT INTO trust_audit.logged_actions (schema_name, table_name, key_value, "action", updated_by, before_fields, after_fields)
-        VALUES ('zoom', TG_TABLE_NAME, key_values /*record_id*/, triggered_action, user_id, old_values, new_values);
+        VALUES ('trust', TG_TABLE_NAME, key_values /*record_id*/, triggered_action, user_id, old_values, new_values);
 
         RETURN NEW;
     ELSE
         INSERT INTO trust_audit.logged_actions (schema_name, table_name, key_value, "action", updated_by, before_fields, after_fields)
-        VALUES ('zoom', TG_TABLE_NAME, key_values, triggered_action, user_id, old_values, new_values);
+        VALUES ('trust', TG_TABLE_NAME, key_values, triggered_action, user_id, old_values, new_values);
 
         RETURN OLD;
     END IF;
