@@ -1,3 +1,16 @@
+-- expects a schema trust
+
+--CREATE ROLE trust SUPERUSER CREATEDB CREATEROLE INHERIT LOGIN NOREPLICATION NOBYPASSRLS PASSWORD 'trust';
+--COMMENT ON ROLE trust IS 'role/user for the trust administration';
+--
+-- DROP SCHEMA trust;
+
+-- CREATE SCHEMA trust AUTHORIZATION trust;
+
+-- drop table trust.trust_meeting;
+
+-- DROP SCHEMA audit;
+CREATE SCHEMA trust_audit AUTHORIZATION trust;
 -- trust."Members" definition
 
 -- Drop table
