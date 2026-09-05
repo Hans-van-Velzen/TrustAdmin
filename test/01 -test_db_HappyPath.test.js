@@ -1,6 +1,6 @@
-import { describe, it, assert } from "vitest";
+import { describe, it, assert } from "vitest"; 
 import { expect } from 'vitest';
-import { clear_database } from "./00 - clear test database.js";
+import { clear_database } from "../server/dbfunctions.js";
 import { get_member_details_by_ID, deactivate_member, getNumberOfMembers,
          getActiveMembers, getInactiveMembers, insert_a_member } from "../server/db_MemberFunctions.js";
 import { insert_a_trust, 
