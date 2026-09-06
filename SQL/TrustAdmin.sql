@@ -24,6 +24,7 @@ CREATE TABLE trust."Members" (
 	"Member_Password" varchar(128) NOT NULL,
 	"Member_Call" varchar(128) NULL,
 	"Member_Active" bpchar(1) DEFAULT 'Y'::bpchar NULL,
+	"Audit_CreatedBy" int8 NULL,
 	"Audit_CreatedAt" timestamptz DEFAULT now() NOT NULL,
 	CONSTRAINT chk_member_active CHECK (("Member_Active" = ANY (ARRAY['Y'::bpchar, 'N'::bpchar]))),
 	CONSTRAINT chk_member_pw_len CHECK ((length(("Member_Password")::text) > 6)),

@@ -7,7 +7,9 @@
     "private": true,
     "main": "index.js",
     "scripts": {
-        "test": "vitest"
+        "test": "vitest --no-file-parallelism --maxWorkers=1",
+        "test:all": "vitest run --no-file-parallelism --maxWorkers=1",
+        "test:happy": "vitest run --no-file-parallelism --maxWorkers=1 \"test/01 -test_db_HappyPath.test.js\""
     },
     "dependencies": {
         "dotenv": "^17.4.2",
