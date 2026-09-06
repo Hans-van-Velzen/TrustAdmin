@@ -2,21 +2,6 @@ import { query } from "../pgdb/index.js";
 import { Trace } from "../utils/Tracer.js";
 
 /*
-clear the database, empty the tables for a fresh start
-*/
-export async function clear_database(){
-    // reset the entire database
-    // console.log('Clear Database');
-    let errMsg;
-    Trace('Clear Database', 3);
-    const params = [];
-    let strSQL = 'delete from trust."Trusts" cascade;delete from trust."Members" cascade;delete from trust."Parties" cascade;';
-    let result = await query(strSQL, params);
-    Trace(result);
-    return result;
-};
-
-/*
 get the number of members
 expects:
     no parameters expected

@@ -10,7 +10,7 @@ export async function clear_database(){
     let errMsg;
     Trace('Clear Database', 3);
     const params = [];
-    let strSQL = 'delete from trust."Trusts";delete from trust."Members";delete from trust."Parties";';
+    let strSQL = 'delete from trust."Parties";delete from trust."Trusts";delete from trust."Members";';
     let result = await query(strSQL, params);
     Trace(result);
     return result;
